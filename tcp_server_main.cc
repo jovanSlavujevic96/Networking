@@ -1,4 +1,6 @@
 #include <iostream>
+#include <chrono>
+#include <thread>
 
 #include "iworker_socket.h"
 #include "ctcp_server.h"
@@ -41,7 +43,7 @@ void MyWorkingSocet::threadEntry()
             mPackage.setMessage(mMessage);
             _this << &mPackage;
             mPackage.clearPackage();
-            sleep(1);
+            std::this_thread::sleep_for(std::chrono::seconds(1));
         }
         catch(const CSocketException& exception)
         {
@@ -71,6 +73,7 @@ int main()
     catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
+        /* TO DO: handle exit */
     }
     return 0;
 }

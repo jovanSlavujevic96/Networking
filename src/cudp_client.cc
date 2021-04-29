@@ -11,7 +11,7 @@ void CUdpClient::initClient()
     CSocket::mSocketInfo->socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if(CSocket::mSocketInfo->socket < 0)
     {
-        throw CSocketException("CUdpClient::initClient : client{%s:%u} socket failed -> %s", IMainSocket::mIp.c_str(), IMainSocket::mPort, strerror(errno));
+        throw CSocketException("CUdpClient::initClient : client{%s:%u} socket failed -> %s", IMainSocket::mIp.c_str(), IMainSocket::mPort, error_message());
     }
     CSocket::mSocketInfo->socketAddress->sin_family = AF_INET;
 	CSocket::mSocketInfo->socketAddress->sin_port = htons(IMainSocket::mPort);

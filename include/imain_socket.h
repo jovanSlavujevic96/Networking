@@ -5,7 +5,7 @@
 class IMainSocket : public CSocket
 {
 public:
-    explicit IMainSocket(const char* ip, uint16_t port);
+    explicit IMainSocket(const char* ip, uint16_t port) noexcept(false);
     virtual ~IMainSocket() = 0;
 
     const std::string& getIp() const;

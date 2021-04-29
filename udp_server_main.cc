@@ -1,4 +1,6 @@
 #include <iostream>
+#include <chrono>
+#include <thread>
 
 #include "cudp_server.h"
 #include "cstring_package.h"
@@ -21,7 +23,7 @@ int main()
             pkg.setMessage(MESSAGE);
             server << &pkg;
             pkg.clearPackage();
-            sleep(1);
+            std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     }
     catch(const std::exception& e)

@@ -11,7 +11,7 @@ CSocketException::CSocketException(const char* error_message, ...)
 	va_copy(args2, args);
 
 	/* get passed format exception's size then allocate exception string if anything exists */
-	const uint16_t size = std::vsnprintf(NULL, 0, error_message, args) + 1;
+	const int32_t size = std::vsnprintf(NULL, 0, error_message, args) + 1;
 	if (size > 1)
 	{
 		mException = (const char*)malloc(size);

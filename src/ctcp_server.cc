@@ -12,7 +12,7 @@ void CTcpServer::initServer() noexcept(false)
 	CSocket::mSocketInfo->socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (CSocket::mSocketInfo->socket < 0)
 	{
-		throw CSocketException("CTcpServer::initServer : server{%s:%u} socket failed -> %s", IMainSocket::mIp.c_str(), IMainSocket::mPort, strerror(errno));
+		throw CSocketException("CTcpServer::initServer : server{%s:%u} socket failed -> %s", IMainSocket::mIp.c_str(), IMainSocket::mPort, error_message());
 	}
 	CSocket::mSocketInfo->socketAddress->sin_family = AF_INET;
 	CSocket::mSocketInfo->socketAddress->sin_port = htons(IMainSocket::mPort);
@@ -20,7 +20,7 @@ void CTcpServer::initServer() noexcept(false)
 #if defined(SO_REUSEADDR) && defined(NET_REUSEADDR)
 	if (setsockopt(CSocket::mSocketInfo->socket, SOL_SOCKET, SO_REUSEADDR, (const char*)&IMainSocket::ReuseFlag, IMainSocket::cReuseSize) < 0)
 	{
-		throw CSocketException("CTcpServer::initServer : server{%s:%u} setsockopt SO_REUSEADDR failed -> %s", IMainSocket::mIp.c_str(), IMainSocket::mPort, strerror(errno));
+		throw CSocketException("CTcpServer::initServer : server{%s:%u} setsockopt SO_REUSEADDR failed -> %s", IMainSocket::mIp.c_str(), IMainSocket::mPort, error_message());
 	}
 #endif
 #if defined(SO_REUSEPORT) && defined(NET_REUSERPORT)
@@ -31,11 +31,11 @@ void CTcpServer::initServer() noexcept(false)
 #endif
     if (bind(CSocket::mSocketInfo->socket, (sockaddr*)CSocket::mSocketInfo->socketAddress.get(), CSocket::AddrLen) < 0)
 	{
-		throw CSocketException("CTcpServer::initServer : server{%s:%u} bind failed -> %s", IMainSocket::mIp.c_str(), IMainSocket::mPort, strerror(errno));
+		throw CSocketException("CTcpServer::initServer : server{%s:%u} bind failed -> %s", IMainSocket::mIp.c_str(), IMainSocket::mPort, error_message());
 	}
 	if (listen(CSocket::mSocketInfo->socket, SOMAXCONN) < 0)
 	{
-		throw CSocketException("CTcpServer::initServer : server{%s:%u} listen failed -> %s", IMainSocket::mIp.c_str(), IMainSocket::mPort, strerror(errno));
+		throw CSocketException("CTcpServer::initServer : server{%s:%u} listen failed -> %s", IMainSocket::mIp.c_str(), IMainSocket::mPort, error_message());
 	}
 }
 
@@ -43,7 +43,7 @@ void CTcpServer::acceptClient(std::unique_ptr<SocketInfo>& client_info) noexcept
 {
 	if(nullptr == client_info)
 	{
-		throw CSocketException("CTcpServer::acceptClient : server{%s:%u} client_addr is nullptr", IMainSocket::mIp.c_str(), IMainSocket::mPort, strerror(errno));
+		throw CSocketException("CTcpServer::acceptClient : server{%s:%u} client_addr is nullptr", IMainSocket::mIp.c_str(), IMainSocket::mPort, error_message());
 	}
 	acceptClient(client_info.get());
 }
@@ -52,7 +52,7 @@ void CTcpServer::acceptClient(SocketInfo* client_info) noexcept(false)
 {
 	if(nullptr == client_info)
 	{
-		throw CSocketException("CTcpServer::acceptClient : server{%s:%u} client_addr is nullptr", IMainSocket::mIp.c_str(), IMainSocket::mPort, strerror(errno));
+		throw CSocketException("CTcpServer::acceptClient : server{%s:%u} client_addr is nullptr", IMainSocket::mIp.c_str(), IMainSocket::mPort, error_message());
 	}
 	else if(nullptr == client_info->socketAddress)
 	{
@@ -62,7 +62,7 @@ void CTcpServer::acceptClient(SocketInfo* client_info) noexcept(false)
 	client_info->socket = accept(CSocket::mSocketInfo->socket, (sockaddr*)client_info->socketAddress.get(), (socklen_t*)&CSocket::AddrLen);
 	if(INVALID_SOCKET == client_info->socket)
 	{
-		throw CSocketException("CTcpServer::acceptClient : server{%s:%u} accept failed -> %s", IMainSocket::mIp.c_str(), IMainSocket::mPort, strerror(errno));
+		throw CSocketException("CTcpServer::acceptClient : server{%s:%u} accept failed -> %s", IMainSocket::mIp.c_str(), IMainSocket::mPort, error_message());
 	}
 }
 

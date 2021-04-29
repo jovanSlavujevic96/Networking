@@ -67,7 +67,7 @@ void* CStringPackage::getStorage() const
 
 uint16_t CStringPackage::getCurrentSize() const
 {
-    return mMessage.size();
+    return (uint16_t)mMessage.size();
 }
 
 uint16_t CStringPackage::getMaxSize() const

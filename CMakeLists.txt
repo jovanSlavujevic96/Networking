@@ -35,7 +35,11 @@ add_library("${PROJECT_NAME}" STATIC
     "${CMAKE_CURRENT_SOURCE_DIR}/src/cudp_server.cc"
 )
 target_link_libraries("${PROJECT_NAME}" PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+if (MSVC)
+    target_link_libraries("${PROJECT_NAME}" PRIVATE wsock32 ws2_32)
+endif()
 target_compile_definitions("${PROJECT_NAME}" PRIVATE -DNET_REUSEADDR)
+
 
 add_executable(TcpClient tcp_client_main.cc)
 target_link_libraries(TcpClient PUBLIC "${PROJECT_NAME}")
