@@ -19,7 +19,7 @@ int main()
         {
             pkg.setCurrentSize();
             server >> &pkg;
-            std::cout << "received: " << (const char*)pkg.getStorage() << std::endl;
+            std::cout << "received: " << pkg.cData() << std::endl;
             pkg.setMessage(MESSAGE);
             server << &pkg;
             pkg.clearPackage();

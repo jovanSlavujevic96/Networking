@@ -5,7 +5,8 @@
 IMainSocket::IMainSocket(const char* ip, uint16_t port) noexcept(false) :
     CSocket::CSocket(std::unique_ptr<SocketInfo>(new SocketInfo{INVALID_SOCKET, std::make_unique<sockaddr_in>()})),
     mIp{ip},
-    mPort{port}
+    mPort{port},
+    mInitDone{false}
 {
     if(CSocket::mSocketInfo->socketAddress != nullptr)
     {
@@ -31,4 +32,9 @@ const std::string& IMainSocket::getIp() const
 uint16_t IMainSocket::getPort() const
 {
     return mPort;
+}
+
+bool IMainSocket::IsInit() const
+{
+    return mInitDone;
 }

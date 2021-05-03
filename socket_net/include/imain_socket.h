@@ -10,9 +10,12 @@ public:
 
     const std::string& getIp() const;
     uint16_t getPort() const;
+    bool IsInit() const;
+
 protected:
     std::string mIp;
     uint16_t mPort;
+    bool mInitDone;
 
     inline static int32_t ReuseFlag = 1;
     inline constexpr static uint8_t cReuseSize = sizeof(ReuseFlag); 

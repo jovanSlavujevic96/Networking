@@ -7,7 +7,7 @@ IThread::IThread()
 
 IThread::~IThread()
 {
-    if(mThread != NULL)
+    if (mThread)
     {
         delete mThread;
     }
@@ -15,17 +15,26 @@ IThread::~IThread()
 
 void IThread::start()
 {
-    mThread = new std::thread(&IThread::internalThreadCall, this);
+    if (!mThread)
+    {
+        mThread = new std::thread(&IThread::internalThreadCall, this);
+    }
 }
 
 void IThread::join()
 {
-    mThread->join();
+    if (mThread)
+    {
+        mThread->join();
+    }
 }
 
 void IThread::detach()
 {
-    mThread->detach();
+    if (mThread)
+    {
+        mThread->detach();
+    }
 }
 
 void* IThread::internalThreadCall(void* _this)

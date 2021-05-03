@@ -36,10 +36,11 @@ void MyWorkingSocet::threadEntry()
     MyWorkingSocet& _this = *this;
     while(true)
     {
-        try{
+        try
+        {
             mPackage.setCurrentSize();
             _this >> &mPackage;
-            std::cout << "ID-" << mId << ": " << (const char*)mPackage.getStorage() << std::endl;
+            std::cout << "ID-" << mId << ": " << mPackage.cData() << std::endl;
             mPackage.setMessage(mMessage);
             _this << &mPackage;
             mPackage.clearPackage();
@@ -73,7 +74,6 @@ int main()
     catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
-        /* TO DO: handle exit */
     }
     return 0;
 }

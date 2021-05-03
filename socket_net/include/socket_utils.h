@@ -58,12 +58,12 @@ inline const char* error_message()
 	static char error[ERROR_BUFFER_SIZE];
 	memset(error, 0, ERROR_BUFFER_SIZE);
     FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,   // flags
-        NULL,                // lpsource
-        WSAGetLastError(),   // message id
+        NULL,               // lpsource
+        WSAGetLastError(),  // message id
         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // languageid
-        error,            // output buffer
-        ERROR_BUFFER_SIZE,              // size of msgbuf, bytes
-        NULL);               // va_list of arguments
+        error,              // output buffer
+        ERROR_BUFFER_SIZE,  // size of msgbuf, bytes
+        NULL);              // va_list of arguments
 #endif
     return error;
 }

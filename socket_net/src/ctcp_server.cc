@@ -37,6 +37,7 @@ void CTcpServer::initServer() noexcept(false)
 	{
 		throw CSocketException("CTcpServer::initServer : server{%s:%u} listen failed -> %s", IMainSocket::mIp.c_str(), IMainSocket::mPort, error_message());
 	}
+	IMainSocket::mInitDone = true;
 }
 
 void CTcpServer::acceptClient(std::unique_ptr<SocketInfo>& client_info) noexcept(false)

@@ -3,7 +3,7 @@
 #include <string>
 #include <climits>
 
-#include "ipakcage.h"
+#include "ipackage.h"
 
 class CStringPackage : public IPackage
 {
@@ -25,7 +25,8 @@ public:
     void setCurrentSize();
     void setCurrentSize(uint16_t len);
 
-    void* getStorage() const override;
+    char* data() override;
+    const char* cData() const override;
     uint16_t getCurrentSize() const override;
     uint16_t getMaxSize() const override;
 

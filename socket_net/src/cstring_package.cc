@@ -60,9 +60,14 @@ void CStringPackage::setCurrentSize(uint16_t len)
     mMessage.resize(len);
 }
 
-void* CStringPackage::getStorage() const
+char* CStringPackage::data()
 {
-    return (void*)mMessage.c_str();
+    return &mMessage[0];
+}
+
+const char* CStringPackage::cData() const
+{
+    return mMessage.c_str();
 }
 
 uint16_t CStringPackage::getCurrentSize() const

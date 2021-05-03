@@ -1,7 +1,7 @@
 #include "cudp_client.h"
 
 CUdpClient::CUdpClient(const char* ip, uint16_t port) :
-    IClient(ip, port)
+    IClient::IClient(ip, port)
 {
 
 }
@@ -16,4 +16,5 @@ void CUdpClient::initClient()
     CSocket::mSocketInfo->socketAddress->sin_family = AF_INET;
 	CSocket::mSocketInfo->socketAddress->sin_port = htons(IMainSocket::mPort);
 	inet_pton(AF_INET, IMainSocket::mIp.c_str(), &CSocket::mSocketInfo->socketAddress->sin_addr);
+    IMainSocket::mInitDone = true;
 }

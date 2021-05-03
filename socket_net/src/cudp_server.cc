@@ -32,5 +32,7 @@ void CUdpServer::initServer()
 	{
 		throw CSocketException("CUdpServer::initServer : server{%s:%u} bind failed -> %s", IMainSocket::mIp.c_str(), IMainSocket::mPort, error_message());
 	}
+	/* using same socketAddress for server target */
     memset(CSocket::mSocketInfo->socketAddress.get(), 0, CSocket::AddrLen);
+	IMainSocket::mInitDone = true;
 }

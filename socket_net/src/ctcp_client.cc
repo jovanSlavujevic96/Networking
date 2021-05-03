@@ -20,4 +20,5 @@ void CTcpClient::initClient() noexcept(false)
 	{
 		throw CSocketException("CTcpClient::initClient : client{%s:%u} connect failed -> %s", IMainSocket::mIp.c_str(), IMainSocket::mPort, error_message());
 	}
+    IMainSocket::mInitDone = true;
 }

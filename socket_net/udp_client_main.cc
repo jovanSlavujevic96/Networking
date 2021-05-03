@@ -1,15 +1,14 @@
 #include <iostream>
 
-#include "ctcp_client.h"
+#include "cudp_client.h"
 #include "cstring_package.h"
 
 #define MAX_STR_SIZE 1024
-
-#define MESSAGE "Hello from client"
+#define MESSAGE "Hello from udp client"
 
 int main()
 {
-    CTcpClient client("127.0.0.1", 10001);
+    CUdpClient client("127.0.0.1", 10002);
     
     try
     {
@@ -21,7 +20,7 @@ int main()
             client << &msg;
             msg.setCurrentSize();
             client >> &msg;
-            std::cout << (const char*)msg.getStorage() << std::endl;
+            std::cout << msg.cData() << std::endl;
         }
     }
     catch(const std::exception& e)
