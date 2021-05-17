@@ -8,7 +8,7 @@ int main()
 {
 	CRtspMaster master("0.0.0.0", 9090);
 	const char* StreamingSuffix = "live";
-	uint64_t hash = master.addSession(std::make_unique<CRtspMediaSession>(StreamingSuffix));
+	uint64_t hash = master.addSession(CRtspMediaSession::instatiateMediaSession(StreamingSuffix));
 	if (hash == 0)
 	{
 		std::cerr << "session has not been added. hash key is zero.\n";

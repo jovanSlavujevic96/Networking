@@ -6,7 +6,7 @@ add_library("${PROJECT_NAME}" STATIC
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/crtsp_media_session.cc"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/crtsp_request_package.cc"
 )
-target_compile_definitions("${PROJECT_NAME}" PUBLIC -D_DEBUG)
+#target_compile_definitions("${PROJECT_NAME}" PUBLIC -D_DEBUG)
 target_link_libraries("${PROJECT_NAME}" PUBLIC 
 	socket_net
 	Threads::Threads

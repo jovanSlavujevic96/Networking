@@ -15,10 +15,15 @@ static std::vector<std::string>::iterator it_str;
 static std::vector<uint16_t>::iterator it_num;
 static std::mutex mutex;
 
+static struct Instantiator
+{
+	CMutlicastIpGenerator multicast_generator;
+	CPortGenerator port_generator;
+}_instantiator;
+
 CMutlicastIpGenerator& CMutlicastIpGenerator::instance()
 {
-	static CMutlicastIpGenerator s_multi_addr;
-	return s_multi_addr;
+	return _instantiator.multicast_generator;
 }
 
 const std::string& CMutlicastIpGenerator::getAddr()
@@ -87,15 +92,14 @@ void CMutlicastIpGenerator::releaseAddr(const std::string& addr)
 
 CPortGenerator& CPortGenerator::instance()
 {
-	static CPortGenerator generator;
-	return generator;
+	return _instantiator.port_generator;
 }
 
 uint16_t CPortGenerator::getPort()
 {
 	if (mPorts.size() == USHRT_MAX)
 	{
-		/* impossible case */
+		/* almost impossible case */
 		return 0;
 	}
 
@@ -138,4 +142,11 @@ void CPortGenerator::releasePort(uint16_t port)
 		}
 		iterator++;
 	}
+}
+
+bool CPortGenerator::isPortFree(uint16_t port)
+{
+	std::lock_guard<std::mutex> lock(mutex);
+	it_num = std::find(mPorts.begin(), mPorts.end(), port);
+	return (it_num != mPorts.end());
 }

@@ -3,6 +3,9 @@
 #include <string>
 #include <vector>
 #include <mutex>
+#include <iostream>
+
+struct Instantiator;
 
 class CMutlicastIpGenerator
 {
@@ -18,6 +21,8 @@ private:
 	std::vector<std::string> mMulticastIp;
 	std::mutex mMutex;
 	
+	friend struct Instantiator;
+
 	CMutlicastIpGenerator() = default;
 	~CMutlicastIpGenerator() = default;
 };

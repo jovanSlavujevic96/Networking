@@ -3,6 +3,8 @@
 #include "crtsp_client_handler.h"
 #include "crtsp_master.h"
 
+std::hash<std::string> hash_generator;
+
 CRtspMaster::CRtspMaster(const char* rtsp_ip, uint16_t rtsp_port, bool authentication) :
 	CTcpServer{rtsp_ip, rtsp_port},
     mAuthentication{authentication}
@@ -10,14 +12,12 @@ CRtspMaster::CRtspMaster(const char* rtsp_ip, uint16_t rtsp_port, bool authentic
 	
 }
 
-_NODISCARD uint64_t CRtspMaster::addSession(std::unique_ptr<CRtspMediaSession> session)
+_NODISCARD uint64_t CRtspMaster::addSession(std::unique_ptr<CRtspMediaSession> session) noexcept
 {
-    static std::hash<std::string> hash_generator;
-    uint64_t suffix_hash = hash_generator(session->getSuffix());
+    uint64_t suffix_hash = ::hash_generator(session->getSuffix());
     try
     {
         (void)mSessionHashMap.at(suffix_hash);
-        return 0;
     }
     catch (...)
     {
@@ -54,14 +54,14 @@ const std::string& CRtspMaster::getSessionIp(uint64_t session_id) const noexcept
     return mSessionHashMap.at(session_id)->getIp();
 }
 
+CRtspMediaSession* CRtspMaster::getMediaSession(uint64_t session_id) const noexcept(false)
+{
+    return mSessionHashMap.at(session_id).get();
+}
+
 void CRtspMaster::initServer() noexcept(false)
 {
     CTcpServer::initServer();
-
-    for (auto& element : mSessionHashMap)
-    {
-        element.second->startSession();
-    }
 }
 
 void CRtspMaster::start() noexcept(false)

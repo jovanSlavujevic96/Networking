@@ -2,10 +2,12 @@
 #include <string.h>
 #include <memory.h>
 #include <mutex>
+#include <ctime>
 
 #include "crtsp_client_handler.h"
 #include "crtsp_master.h"
 #include "crtsp_request_package.h"
+#include "crtsp_media_session.h"
 
 #define KEY_CRLF "\r\n"
 #define KEY_CRLFCRLF KEY_CRLF KEY_CRLF
@@ -14,11 +16,14 @@
 
 /** @brief buffer size is 10 kB for receiving of  */
 static constexpr uint16_t BUFFER_SIZE = ONE_KB * 10;
+extern std::hash<std::string> hash_generator;
 
 CRtspClientHandler::CRtspClientHandler(std::unique_ptr<SocketInfo> socket_info) :
 	IWorkerSocket::IWorkerSocket(std::move(socket_info)),
 	mRequestState{RtspRequest::NONE},
-	mRtspInfo{0}
+	mRtspInfo{0},
+	mPkg{BUFFER_SIZE},
+	mMediaSession{NULL}
 {
 	mRtspInfo.suffix[MAX_SUFFIX_STR_LEN - 1] = '\0';
 	mRtspInfo.ip[MAX_IP_STR_LEN - 1] = '\0';
@@ -39,24 +44,48 @@ std::unique_ptr<CRtspClientHandler> CRtspClientHandler::instatiateClientHandler(
 void CRtspClientHandler::threadEntry()
 {
 	/* Handle RTCP/RTSP communication */
-	CRtspRequestPackage rcvPkg(BUFFER_SIZE);
 	CSocket& this_ = *this;
-	while (true)
+	int32_t ret;
+	bool bRun = true;
+	while (bRun)
 	{
 		try
 		{
-			this_ >> &rcvPkg;
+			ret = this_ >> &mPkg;
+			mPkg[(uint16_t)ret] = '\0';
+
+#if defined(_DEBUG)
+			std::cout << "REQ: \n" << mPkg.cData() << std::endl;
+#endif
+			if (!onReceive(mPkg.cData()))
+			{
+#if defined(_DEBUG)
+				std::cout << "onReceive() failed\n";
+#endif
+				break;
+			}
+			else if(!onSend() )
+			{
+#if defined(_DEBUG)
+				std::cout << "onSend() failed\n";
+#endif
+				bRun = false;
+			}
+#if defined(_DEBUG)
+			std::cout << "RES: \n" << mPkg.cData() << std::endl;
+#endif
+			this_ << &mPkg;
 		}
-		catch (...)
+		catch (std::exception& e)
 		{
+			std::cout << e.what() << std::endl;
 			break;
 		}
-		std::cout << rcvPkg.cData() << std::endl;
-		if (!onReceive(rcvPkg.cData()))
-		{
-			break;
-		}
+		
 	}
+#if defined(_DEBUG)
+	std::cout << "BREAK\n";
+#endif
 	mMaster->eraseRtspClient(this);
 }
 
@@ -68,8 +97,8 @@ bool CRtspClientHandler::onReceive(const char* message)
 	{
 		return false;
 	}
-	memset(endOfRequestLine, '\0', 2);
-	memset(enfOfHeadersLine, '\0', 4);
+	*endOfRequestLine = '\0';
+	*enfOfHeadersLine = '\0';
 
 	bool ret = parseRequestLine(message);
 	if (ret)
@@ -77,7 +106,7 @@ bool CRtspClientHandler::onReceive(const char* message)
 		ret = parseHeaderLines(endOfRequestLine+2);
 	}
 
-#ifdef _DEBUG
+#if defined(_DEBUG)
 	std::cout << "----------------------------------------\n";
 	std::cout << "ip            = " << mRtspInfo.ip << std::endl;
 	std::cout << "port          = " << std::dec << mRtspInfo.port << std::endl;
@@ -325,14 +354,212 @@ bool CRtspClientHandler::parseSessionId(const char* lines)
 	if(session)
 	{
 #if defined(__linux) || defined(__linux__)
-		if (std::sscanf(session, "%*[^:]: %u", &mRtspInfo.mediaSessionId) != 1)
+		return (std::sscanf(session, "%*[^:]: %u", &mRtspInfo.mediaSessionId) == 1);
 #elif defined(WIN32) || defined(_WIN32)
-		if (::sscanf_s(session, "%*[^:]: %u", &mRtspInfo.mediaSessionId) != 1)
+		return (::sscanf_s(session, "%*[^:]: %u", &mRtspInfo.mediaSessionId) == 1);
 #endif
-		{
-			return false;
-		}
-		return true;
 	}
 	return false;
+}
+
+bool CRtspClientHandler::onSend()
+{
+	mPkg.clear();	/* clear package */
+	switch (mRequestState)
+	{
+		case RtspRequest::OPTIONS:
+		{
+			return handleCmdOption();
+		}
+		case RtspRequest::DESCRIBE:
+		{
+			return handleCmdDescribe();
+		}
+		case RtspRequest::SETUP:
+		{
+			return handleCmdSetup();
+		}
+		case RtspRequest::PLAY:
+		{
+			return handleCmdPlay();
+		}
+		case RtspRequest::TEARDOWN:
+		{
+			return handleCmdTeardown();
+		}
+		case RtspRequest::GET_PARAMETER:
+		{
+			return handleCmdGetParameter();
+		}
+		default:
+		{
+			break;
+		}
+	}
+	return false;
+}
+
+bool CRtspClientHandler::handleCmdOption()
+{
+	mPkg << "RTSP/" << mRtspInfo.rtspVersion << " 200 OK\r\n"
+		<< "CSeq: " << mRtspInfo.currentSeq << "\r\n"
+		<< "Public: OPTIONS, DESCRIBE, SETUP, TEARDOWN, PLAY\r\n\r\n";
+	return true;
+}
+
+bool CRtspClientHandler::handleCmdDescribe()
+{
+	if (!mMediaSession)
+	{
+		uint64_t suffix_hash = ::hash_generator(mRtspInfo.suffix);
+		mMediaSession = mMaster->getMediaSession(suffix_hash);
+		if (!mMediaSession)
+		{
+			goto stream_not_found;
+		}
+	}
+
+	if (!mMediaSession->getMulticast())
+	{
+		/* create udp unicast server for new rtsp client */
+		if (!mMediaSession->addClient(this, mRtspInfo.rtpPort))
+		{
+			goto server_error;
+		}
+	}
+
+	mPkg << "v=0\r\n"
+		<< "o=- 9" << std::time(NULL) << "1 IN IP4 " << mRtspInfo.ip << "\r\n"
+		<< "t=0 0\r\n"
+		<< "a=control:*\r\n";
+
+	if (mMediaSession->getMulticast())
+	{
+		mPkg << "a=type:broadcast\r\n"
+			<< "a=rtcp-unicast: reflection\r\n";
+	}
+
+	mPkg << "m=video " << mMediaSession->getPort(this) << " RTP/AVP 96\r\n";
+
+	if (mMediaSession->getMulticast())
+	{
+		mPkg << "c=IN INP4 " << mMediaSession->getIp() << "/255\r\n";
+	}
+
+	mPkg << "rtpmap:96 H264/90000\r\n"
+		<< "a=control:track0\r\n";
+
+	uint16_t sdp_len = mPkg.getCurrentSize();
+
+	mPkg >> "Content-Type: application/sdp\r\n\r\n"
+		>> "\r\n" >> sdp_len >> "Content-Length: "
+		>> "\r\n" >> mRtspInfo.currentSeq >> "CSeq: "
+		>> " 200 OK\r\n" >> mRtspInfo.rtspVersion >> "RTSP/";
+	return true;
+
+server_error:
+	mPkg << "RTSP/" << mRtspInfo.rtspVersion << " 500 Internal Server Error\r\n"
+		<< "CSeq: " << mRtspInfo.currentSeq << "\r\n\r\n";
+	return false;
+
+stream_not_found:
+	mPkg << "RTSP/" << mRtspInfo.rtspVersion << " 404 Stream Not Found\r\n"
+		<< "CSeq: " << mRtspInfo.currentSeq << "\r\n\r\n";
+	return false;
+}
+
+bool CRtspClientHandler::handleCmdSetup()
+{
+	if (!mMediaSession)
+	{
+		uint64_t suffix_hash = ::hash_generator(mRtspInfo.suffix);
+		mMediaSession = mMaster->getMediaSession(suffix_hash);
+		if (!mMediaSession)
+		{
+			goto stream_not_found;
+		}
+	}
+
+	if (mMediaSession->getMulticast())
+	{
+		if (mRtspInfo.transport != RtspTransport::RTP_OVER_MULTICAST)
+		{
+			goto transport_unsupport;
+		}
+		/* mutlicast streaming client */
+		mPkg << "RTSP/" << mRtspInfo.rtspVersion << " 200 OK\r\n"
+			<< "CSeq: " << mRtspInfo.currentSeq << "\r\n"
+			<< "Transport: RTP/AVP;multicast;destination=" << mMediaSession->getIp() << ";source=" << mRtspInfo.ip << ";port=" << mMediaSession->getPort() << "-0;ttl=255\r\n"
+			<< "Session: " << (uint64_t)mMediaSession /*media session address*/ << "\r\n\r\n";
+	}
+	else
+	{
+		if (mRtspInfo.transport != RtspTransport::RTP_OVER_UDP)
+		{
+			goto transport_unsupport;
+		}
+		/* create new udp unicast server for new rtsp client if it's not created */
+		else if (!mMediaSession->addClient(this, mRtspInfo.rtpPort))
+		{
+			goto server_error;
+		}
+		/* udp unicast streaming client */
+		mPkg << "RTSP/" << mRtspInfo.rtspVersion << " 200 OK\r\n"
+			<< "CSeq: " << mRtspInfo.currentSeq << "\r\n"
+			<< "Transport: RTP/AVP;unicast;client_port=" << mRtspInfo.rtpPort << '-' << mRtspInfo.rtpPort << ";server_port=" << mMediaSession->getPort(this) << "-0\r\n"
+			<< "Session: " << (uint64_t)mMediaSession /*media session address*/ << "\r\n\r\n";
+	}
+	return true;
+
+server_error:
+	mPkg << "RTSP/" << mRtspInfo.rtspVersion << " 500 Internal Server Error\r\n"
+		<< "CSeq: " << mRtspInfo.currentSeq << "\r\n\r\n";
+	return false;
+
+transport_unsupport:
+	mPkg << "RTSP/" << mRtspInfo.rtspVersion << " 461 Unsupported transport\r\n"
+		<< "CSeq: " << mRtspInfo.currentSeq << "\r\n\r\n";
+	return false;
+
+stream_not_found:
+	mPkg << "RTSP/" << mRtspInfo.rtspVersion << " 404 Stream Not Found\r\n"
+		<< "CSeq: " << mRtspInfo.currentSeq << "\r\n\r\n";
+	return false;
+}
+
+bool CRtspClientHandler::handleCmdPlay()
+{
+	if (!mMediaSession)
+	{
+		return false;
+	}
+	mPkg << "RTSP/" << mRtspInfo.rtspVersion << " 200 OK\r\n"
+		<< "CSeq: " << mRtspInfo.currentSeq << "\r\n"
+		<< "Range: npt=0.000-\r\n"
+		<< "Session: " << (uint64_t)mMediaSession << "; timeout=60\r\n\r\n";
+	return true;
+}
+
+bool CRtspClientHandler::handleCmdTeardown()
+{
+	if (!mMediaSession)
+	{
+		return false;
+	}
+	mPkg << "RTSP/" << mRtspInfo.rtspVersion << "200 OK\r\n"
+		<< "CSeq: " << mRtspInfo.currentSeq << "\r\n"
+		<< "Session: " << (uint64_t)mMediaSession << "\r\n\r\n";
+	return true;
+}
+
+bool CRtspClientHandler::handleCmdGetParameter()
+{
+	if (!mMediaSession)
+	{
+		return false;
+	}
+	mPkg << "RTSP/" << mRtspInfo.rtspVersion << "200 OK\r\n"
+		<< "CSeq: " << mRtspInfo.currentSeq << "\r\n"
+		<< "Session: " << (uint64_t)mMediaSession << "\r\n\r\n";
+	return true;
 }

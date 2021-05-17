@@ -26,12 +26,13 @@ public:
 	 *	@return session id
 	 *	@retval ZERO	 - add session failed 
 	 *	@retval NON-ZERO - id (hash) of added media session */
-	_NODISCARD uint64_t addSession(std::unique_ptr<CRtspMediaSession> session);
+	_NODISCARD uint64_t addSession(std::unique_ptr<CRtspMediaSession> session) noexcept;
 	void eraseRtspClient(CRtspClientHandler* client);
 
 	uint16_t getSessionPort(uint64_t session_id, CRtspClientHandler* client = NULL) const noexcept(false);
 	const std::string& getSessionIp(uint64_t session_id) const noexcept(false);
-
+	CRtspMediaSession* getMediaSession(uint64_t session_id) const noexcept(false);
+	
 	void initServer() noexcept(false) override final;
 	void start() noexcept(false);
 

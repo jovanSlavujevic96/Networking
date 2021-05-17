@@ -25,12 +25,13 @@ public:
     void setCurrentSize();
     void setCurrentSize(uint16_t len);
 
-    char* data() override;
     const char* cData() const override;
     uint16_t getCurrentSize() const override;
     uint16_t getMaxSize() const override;
 
 private:
+    char* data() override;
+
     std::string mMessage;
     uint16_t mMaxLen = USHRT_MAX;    
 };
