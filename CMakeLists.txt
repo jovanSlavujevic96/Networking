@@ -22,7 +22,18 @@ else()
 endif()
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/socket_net/include")
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/rtsp/include")
-
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/socket_net")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/rtsp")
+
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/apps")
+
+add_library(ExampleHelper STATIC "${CMAKE_CURRENT_SOURCE_DIR}/apps/cstring_package.cc")
+
+link_libraries(socket_net)
+link_libraries(ExampleHelper)
+
+add_executable(TcpClient "${CMAKE_CURRENT_SOURCE_DIR}/apps/tcp_client_main.cc")
+add_executable(TcpServer "${CMAKE_CURRENT_SOURCE_DIR}/apps/tcp_server_main.cc")
+add_executable(UdpUnicastClient "${CMAKE_CURRENT_SOURCE_DIR}/apps/udp_client_main.cc")
+add_executable(UdpUnicastServer "${CMAKE_CURRENT_SOURCE_DIR}/apps/udp_server_main.cc")
+add_executable(UdpMulticastClient "${CMAKE_CURRENT_SOURCE_DIR}/apps/udp_mcast_client_main.cc")
+add_executable(UdpMulticastServer "${CMAKE_CURRENT_SOURCE_DIR}/apps/udp_mcast_server_main.cc")
