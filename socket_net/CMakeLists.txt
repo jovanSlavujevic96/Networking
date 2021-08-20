@@ -12,6 +12,7 @@ add_library(${PROJECT_NAME} STATIC
     "${CMAKE_CURRENT_SOURCE_DIR}/src/cudp_server.cc"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/cudp_mcast_server.cc"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/cgenerators.cc"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/socket_utils.cc"
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE -DNET_REUSEADDR)
