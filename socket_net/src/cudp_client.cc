@@ -13,6 +13,7 @@ void CUdpClient::initClient()
     {
         throw CSocketException("CUdpClient::initClient : client{%s:%u} socket failed -> %s", IMainSocket::mIp.c_str(), IMainSocket::mPort, error_message());
     }
+    std::memset(CSocket::mSocketInfo->socketAddress.get(), 0, sizeof(*CSocket::mSocketInfo->socketAddress.get()));
     CSocket::mSocketInfo->socketAddress->sin_family = AF_INET;
 	CSocket::mSocketInfo->socketAddress->sin_port = htons(IMainSocket::mPort);
 	inet_pton(AF_INET, IMainSocket::mIp.c_str(), &CSocket::mSocketInfo->socketAddress->sin_addr);
