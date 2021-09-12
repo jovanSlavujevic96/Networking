@@ -6,14 +6,13 @@
 #include <vector>
 
 #include "socket_utils.h"
-#include "socket_info.h"
 #include "csocket_exception.h"
 #include "ipackage.h"
 
 class CSocket
 {
 public:
-    CSocket(std::unique_ptr<SocketInfo> socket_info);
+    CSocket(SOCKET fd, std::unique_ptr<sockaddr_in> runningSockAddr, std::unique_ptr<sockaddr_in> targetSockAddr);
     virtual ~CSocket();
 
     void closeSocket();
@@ -27,7 +26,10 @@ public:
     int32_t operator<< (const std::vector<T>& data) const noexcept(false);
 
 protected:
-    std::unique_ptr<SocketInfo> mSocketInfo = nullptr;
+    SOCKET mSocketFd = INVALID_SOCKET;
+    std::unique_ptr<sockaddr_in> mRunningSockAddr = nullptr;
+    std::unique_ptr<sockaddr_in> mTargetSockAddr = nullptr;
 
+    inline static constexpr size_t cAddrLen = sizeof(sockaddr_in);
     inline static int32_t AddrLen = sizeof(sockaddr_in);
 };

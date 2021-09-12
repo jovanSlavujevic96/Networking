@@ -1,6 +1,7 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <memory>
 
 #include "iworker_socket.h"
 #include "ctcp_server.h"
@@ -8,11 +9,11 @@
 
 #define MAX_STR_SIZE 1024
 
-class MyWorkingSocet : public IWorkerSocket
+class MyWorkingSocket : public IWorkerSocket
 {
 public:
-    MyWorkingSocet(std::unique_ptr<SocketInfo> socket_info, int id);
-    ~MyWorkingSocet() = default;
+    explicit MyWorkingSocket(SOCKET sock_fd, std::unique_ptr<sockaddr_in> sock_addr, int id);
+    inline ~MyWorkingSocket() = default;
 
 private:
     void threadEntry() override;
@@ -22,18 +23,18 @@ private:
     int mId;
 };
 
-MyWorkingSocet::MyWorkingSocet(std::unique_ptr<SocketInfo> socket_info, int id) : 
-    IWorkerSocket::IWorkerSocket(std::move(socket_info)), 
-    mPackage(MAX_STR_SIZE),
-    mMessage{"Hello to client:"+std::to_string(id)},
+MyWorkingSocket::MyWorkingSocket(SOCKET sock_fd, std::unique_ptr<sockaddr_in> sock_addr, int id) :
+    IWorkerSocket::IWorkerSocket{ sock_fd, std::move(sock_addr) },
+    mPackage{ MAX_STR_SIZE },
+    mMessage{"Hello to client:" + std::to_string(id)},
     mId{id}
 {
 
 }
 
-void MyWorkingSocet::threadEntry()
+void MyWorkingSocket::threadEntry()
 {
-    MyWorkingSocet& _this = *this;
+    MyWorkingSocket& _this = *this;
     while(true)
     {
         try
@@ -54,21 +55,27 @@ void MyWorkingSocet::threadEntry()
     }
 }
 
+namespace
+{
+    static inline std::unique_ptr<CSocket> allocWorkingSocket(SOCKET fd, std::unique_ptr<sockaddr_in> addr)
+    {
+        static int acceptanceId = 0;
+        MyWorkingSocket* worker = new MyWorkingSocket(fd, std::move(addr), acceptanceId++);
+        worker->start();
+        return std::unique_ptr<MyWorkingSocket>(worker);
+    }
+}
+
 int main()
 {
     CTcpServer server("127.0.0.1", 10001);
+    server.setAllocSocketFunc(::allocWorkingSocket);
     try
     {
         server.initServer();
-        std::unique_ptr<SocketInfo> socket_info = nullptr;
         while(true)
         {
-            static int acceptanceId = 0;
-            socket_info = std::make_unique<SocketInfo>();
-            server.acceptClient(socket_info);
-            std::unique_ptr<IWorkerSocket> client_socket = std::make_unique<MyWorkingSocet>(std::move(socket_info), acceptanceId++); 
-	        client_socket->start();
-            server.addClient(std::move(client_socket));
+            (void)server.acceptClient();
         }
     }
     catch(const std::exception& e)

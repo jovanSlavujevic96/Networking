@@ -6,7 +6,7 @@
 class IThread
 {
 public:
-    explicit IThread();
+    inline explicit IThread() = default;
     virtual ~IThread();
 
     void start();

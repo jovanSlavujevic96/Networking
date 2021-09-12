@@ -43,8 +43,8 @@ const std::string& CMutlicastIpGenerator::getAddr()
 	
 	while(true)
 	{
-		addr.S_un.S_addr = htonl(MULTICAST_MIN_IPV4 + (rd()) % range);
-		addr_str = inet_ntoa(addr);
+		addr.S_un.S_addr = ::htonl(MULTICAST_MIN_IPV4 + (rd()) % range);
+		addr_str = ::inet_ntoa(addr);
 
 		it_str = std::find(mMulticastIp.begin(), mMulticastIp.end(), addr_str);
 		if (it_str != mMulticastIp.end())
@@ -66,7 +66,7 @@ void CMutlicastIpGenerator::releaseAddr(const char* addr)
 	uint16_t iterator = 0;
 	for (auto& ip : mMulticastIp)
 	{
-		if (!strcmp(addr, ip.c_str()))
+		if (!std::strcmp(addr, ip.c_str()))
 		{
 			mMulticastIp.erase(mMulticastIp.begin() + iterator);
 			break;

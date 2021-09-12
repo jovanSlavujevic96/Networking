@@ -8,6 +8,6 @@ class IWorkerSocket :
     public IThread
 {
 public:
-    IWorkerSocket(std::unique_ptr<SocketInfo> socket_info) : CSocket(std::move(socket_info)) {}
+    inline explicit IWorkerSocket(SOCKET sock_fd, std::unique_ptr<sockaddr_in> sock_addr) : CSocket{ sock_fd, nullptr, std::move(sock_addr) } {}
     ~IWorkerSocket() = default;
 };

@@ -5,8 +5,8 @@
 class CUdpMcastClient : public IClient
 {
 public:
-    CUdpMcastClient(const char* ip, uint16_t port);
-    ~CUdpMcastClient() = default;
+    explicit CUdpMcastClient(const char* mcast_ip, uint16_t mcast_port) noexcept(false);
+    inline ~CUdpMcastClient() = default;
 
     void initClient() override;
 private:

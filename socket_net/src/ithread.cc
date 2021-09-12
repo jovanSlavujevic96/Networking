@@ -1,10 +1,5 @@
 #include "ithread.h"
 
-IThread::IThread()
-{
-
-}
-
 IThread::~IThread()
 {
     if (mThread)

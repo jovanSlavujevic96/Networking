@@ -14,5 +14,5 @@ public:
     int getErrorCode() const;
 private:
     const char* mException = NULL;
-    int mErrorCode = -1;
+    int mErrorCode = 0;
 };

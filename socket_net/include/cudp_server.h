@@ -5,8 +5,8 @@
 class CUdpServer : public IServer
 {
 public:
-    CUdpServer(const char* ip, uint16_t port);
-    ~CUdpServer() = default;
+    explicit CUdpServer(const char* running_ip, uint16_t running_port, const char* target_ip, uint16_t target_port) noexcept(false);
+    inline ~CUdpServer() = default;
 
     void initServer() override;
 };

@@ -5,8 +5,8 @@
 class CUdpMcastServer : public IServer
 {
 public:
-    CUdpMcastServer(const char* ip, uint16_t port);
-    ~CUdpMcastServer() = default;
+    explicit CUdpMcastServer(const char* mcast_ip, uint16_t mcast_port) noexcept(false);
+    inline ~CUdpMcastServer() = default;
 
     void initServer() override;
 private:

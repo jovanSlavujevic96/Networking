@@ -5,8 +5,8 @@
 class IClient : public IMainSocket
 {
 public:
-    IClient(const char* ip, uint16_t port) : IMainSocket{ip, port} {}
-    ~IClient() = default;
+    inline explicit IClient() = default;
+    inline ~IClient() = default;
 
     virtual void initClient() noexcept(false) = 0;
 };

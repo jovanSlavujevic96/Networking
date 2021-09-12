@@ -10,7 +10,7 @@
 
 int main()
 {
-    CUdpServer server("127.0.0.1",10002);
+    CUdpServer server("0.0.0.0", 10002, "0.0.0.0", 0);
     try
     {
         server.initServer();
@@ -22,6 +22,7 @@ int main()
             std::cout << "received: " << pkg.cData() << std::endl;
             pkg.setMessage(MESSAGE);
             server << &pkg;
+            std::cout << "sent:     " << pkg.cData() << std::endl;
             pkg.clearPackage();
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }

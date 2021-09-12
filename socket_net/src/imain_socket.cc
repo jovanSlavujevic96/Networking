@@ -2,39 +2,54 @@
 
 #include "imain_socket.h"
 
-IMainSocket::IMainSocket(const char* ip, uint16_t port) noexcept(false) :
-    CSocket::CSocket(std::unique_ptr<SocketInfo>(new SocketInfo{INVALID_SOCKET, std::make_unique<sockaddr_in>()})),
-    mIp{ip},
-    mPort{port},
-    mInitDone{false}
+IMainSocket::IMainSocket() noexcept(false) :
+    CSocket::CSocket{ INVALID_SOCKET /*sock fd*/, nullptr /*running sock addr*/, nullptr /*target sock addr*/ }
 {
-    if(CSocket::mSocketInfo->socketAddress != nullptr)
-    {
-        memset(CSocket::mSocketInfo->socketAddress.get(), 0, CSocket::AddrLen);
-    }
 #if defined(WIN32) || defined(_WIN32)
     WSADATA wsaData;
-    int dResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+    int dResult = ::WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (dResult != 0)
     {
-        throw CSocketException("IMainSocket::IMainSocket : socket{%s:%u} WSAStartup failed: %d -> %s", ip, port, dResult, error_message());
+        int code = ::error_code();
+        throw CSocketException(code, "IMainSocket::IMainSocket : %llu WSAStartup failed: %d -> %s", (size_t)this, dResult, ::error_message(code));
     }
 #endif
 }
 
 IMainSocket::~IMainSocket() = default;
 
-const std::string& IMainSocket::getIp() const
+std::string IMainSocket::getRunningIp() const noexcept(false)
 {
-    return mIp;
+    if (nullptr == CSocket::mRunningSockAddr)
+    {
+        throw CSocketException("Can't get Running IP. Running Socket Address is NULL.");
+    }
+    return ::inet_ntoa(*(in_addr*)(CSocket::mRunningSockAddr.get()));
 }
 
-uint16_t IMainSocket::getPort() const
+uint16_t IMainSocket::getRunningPort() const noexcept(false)
 {
-    return mPort;
+    if (nullptr == CSocket::mRunningSockAddr)
+    {
+        throw CSocketException("Can't get Running port. Running Socket Address is NULL.");
+    }
+    return ::htons(CSocket::mRunningSockAddr->sin_port);
 }
 
-bool IMainSocket::IsInit() const
+std::string IMainSocket::getTargetIp() const noexcept(false)
 {
-    return mInitDone;
+    if (nullptr == CSocket::mTargetSockAddr)
+    {
+        throw CSocketException("Can't get Target IP. Target Socket Address is NULL.");
+    }
+    return ::inet_ntoa(*(in_addr*)(CSocket::mTargetSockAddr.get()));
+}
+
+uint16_t IMainSocket::getTargetPort() const noexcept(false)
+{
+    if (nullptr == CSocket::mRunningSockAddr)
+    {
+        throw CSocketException("Can't get Target port. Target Socket Address is NULL.");
+    }
+    return ::htons(CSocket::mRunningSockAddr->sin_port);
 }

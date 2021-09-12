@@ -15,7 +15,7 @@ CSocketException::CSocketException(int error_code, const char* error_message, ..
     const int32_t size = std::vsnprintf(NULL, 0, error_message, args) + 1;
     if (size > 1)
     {
-        mException = (const char*)malloc(size);
+        mException = (const char*)std::malloc(size);
         if (mException)
         {
             (void)std::vsnprintf((char*)mException, size, error_message, args2);
@@ -38,7 +38,7 @@ CSocketException::CSocketException(const char* error_message, ...)
 	const int32_t size = std::vsnprintf(NULL, 0, error_message, args) + 1;
 	if (size > 1)
 	{
-		mException = (const char*)malloc(size);
+		mException = (const char*)std::malloc(size);
 		if (mException)
 		{
 			(void)std::vsnprintf((char*)mException, size, error_message, args2);
@@ -54,7 +54,7 @@ CSocketException::~CSocketException()
 {
     if (mException)
     {
-        free((void*)mException);
+        std::free((void*)mException);
     }
 }
 

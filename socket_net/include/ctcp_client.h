@@ -5,8 +5,8 @@
 class CTcpClient : public IClient
 {
 public:
-    CTcpClient(const char* ip, uint16_t port);
-    ~CTcpClient() = default;
+    explicit CTcpClient(const char* target_ip, uint16_t target_port) noexcept(false);
+    inline ~CTcpClient() = default;
 
     void initClient() noexcept(false) override;
 };
