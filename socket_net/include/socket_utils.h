@@ -46,4 +46,9 @@ int close(SOCKET socket);
 
 #endif
 
-const char* error_message();
+int error_code();
+#if defined(__linux) || defined(__linux__)
+const char* error_message(int error_code=errno);
+#elif defined(WIN32) || defined(_WIN32)
+const char* error_message(int error_code=WSAGetLastError());
+#endif

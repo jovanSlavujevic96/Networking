@@ -42,7 +42,8 @@ int32_t CSocket::operator<< (const IPackage* pkg) const noexcept(false)
     int32_t ret = sendto(mSocketInfo->socket, pkg->cData(), pkg->getCurrentSize(), 0, (sockaddr*)mSocketInfo->socketAddress.get(), CSocket::AddrLen);
     if(ret < 0)
     {
-        throw CSocketException("CSocket::operator<< :: Send failed -> %s.", error_message());
+        int code = error_code();
+        throw CSocketException(code, "CSocket::operator<< :: Send failed -> %s.", error_message(code));
     }
     return ret;
 }
@@ -61,7 +62,8 @@ int32_t CSocket::operator>> (IPackage* pkg) noexcept(false)
     int32_t ret = recvfrom(mSocketInfo->socket, pkg->data(), pkg->getMaxSize(), 0, (sockaddr*)mSocketInfo->socketAddress.get(), (socklen_t*)&CSocket::AddrLen);
     if(ret < 0)
     {
-        throw CSocketException("CSocket::operator>> :: Receive failed -> %s.", error_message());
+        int code = error_code();
+        throw CSocketException(code, "CSocket::operator>> :: Receive failed -> %s.", error_message(code));
     }
     else if(0 == ret)
     {
@@ -89,7 +91,8 @@ int32_t CSocket::operator<< (const char* message) const noexcept(false)
     ret = sendto(mSocketInfo->socket, message, ret /*strlen*/, 0, (sockaddr*)mSocketInfo->socketAddress.get(), CSocket::AddrLen);
     if (ret < 0)
     {
-        throw CSocketException("CSocket::operator<< :: Send failed -> %s.", error_message());
+        int code = error_code();
+        throw CSocketException(code, "CSocket::operator<< :: Send failed -> %s.", error_message(code));
     }
     return ret;
 }
@@ -108,7 +111,8 @@ int32_t CSocket::operator<< (const std::string& message) const noexcept(false)
     int32_t ret = sendto(mSocketInfo->socket, message.c_str(), (int32_t)message.size(), 0, (sockaddr*)mSocketInfo->socketAddress.get(), CSocket::AddrLen);
     if (ret < 0)
     {
-        throw CSocketException("CSocket::operator<< :: Send failed -> %s.", error_message());
+        int code = error_code();
+        throw CSocketException(code, "CSocket::operator<< :: Send failed -> %s.", error_message(code));
     }
     return ret;
 }
@@ -128,7 +132,9 @@ int32_t CSocket::operator<< (const std::vector<T>& data) const noexcept(false)
     int32_t ret = sendto(mSocketInfo->socket, data.data(), (int32_t)data.size()*sizeof(class T), 0, (sockaddr*)mSocketInfo->socketAddress.get(), CSocket::AddrLen);
     if (ret < 0)
     {
-        throw CSocketException("CSocket::operator<< :: Send failed -> %s.", error_message());
+        int code = error_code();
+        throw CSocketException(code, "CSocket::operator<< :: Send failed -> %s.", error_message(code));
+
     }
     return ret;
 }
