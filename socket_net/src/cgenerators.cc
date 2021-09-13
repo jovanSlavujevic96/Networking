@@ -39,19 +39,16 @@ const std::string& CMutlicastIpGenerator::getAddr()
 	}
 
 	std::lock_guard<std::mutex> lock(mutex);
-	std::string addr_str;
+	char addr_str[100];
+	uint32_t addr_hex;
 	
 	while(true)
 	{
-		addr.S_un.S_addr = ::htonl(MULTICAST_MIN_IPV4 + (rd()) % range);
-		addr_str = ::inet_ntoa(addr);
+		addr_hex = ::htonl(MULTICAST_MIN_IPV4 + (rd()) % range);
+		::inet_ntop(AF_INET, &addr_hex, addr_str, sizeof(addr_str));
 
 		it_str = std::find(mMulticastIp.begin(), mMulticastIp.end(), addr_str);
-		if (it_str != mMulticastIp.end())
-		{
-			addr_str.clear();
-		}
-		else 
+		if (it_str == mMulticastIp.end())
 		{
 			mMulticastIp.push_back(addr_str);
 			break;

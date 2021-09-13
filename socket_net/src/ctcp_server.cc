@@ -26,6 +26,19 @@ CTcpServer::CTcpServer(const char* running_ip, uint16_t running_port) noexcept(f
 	mAllocSocketFunction = ::allocSocket;
 }
 
+CTcpServer::CTcpServer(uint16_t running_port) noexcept
+{
+	if (nullptr == CSocket::mRunningSockAddr)
+	{
+		CSocket::mRunningSockAddr = std::make_unique<sockaddr_in>();
+	}
+	std::memset(CSocket::mRunningSockAddr.get(), 0, CSocket::cAddrLen);
+	CSocket::mRunningSockAddr->sin_family = AF_INET;
+	CSocket::mRunningSockAddr->sin_port = ::htons(running_port);
+	::inet_pton(AF_INET, "0.0.0.0" /*IPADDR_ANY*/, &CSocket::mRunningSockAddr->sin_addr);
+	mAllocSocketFunction = ::allocSocket;
+}
+
 void CTcpServer::initServer() noexcept(false)
 {
 	CSocket::mSocketFd = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -64,7 +77,7 @@ size_t CTcpServer::acceptClient() noexcept(false)
 {
 	if (INVALID_SOCKET == CSocket::mSocketFd)
 	{
-		throw CSocketException("CTcpServer::acceptClient");
+		throw CSocketException("CTcpServer::acceptClient : invalid server fd.");
 	}
 	std::unique_ptr<sockaddr_in> target_socket_addr = std::make_unique<sockaddr_in>();
 	SOCKET target_fd = INVALID_SOCKET;

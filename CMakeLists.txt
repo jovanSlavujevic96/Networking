@@ -39,3 +39,4 @@ add_executable(UdpUnicastClient "${CMAKE_CURRENT_SOURCE_DIR}/apps/udp_client_mai
 add_executable(UdpUnicastServer "${CMAKE_CURRENT_SOURCE_DIR}/apps/udp_server_main.cc")
 add_executable(UdpMulticastClient "${CMAKE_CURRENT_SOURCE_DIR}/apps/udp_mcast_client_main.cc")
 add_executable(UdpMulticastServer "${CMAKE_CURRENT_SOURCE_DIR}/apps/udp_mcast_server_main.cc")
+add_executable(GetOwnIpAddr "${CMAKE_CURRENT_SOURCE_DIR}/apps/get_own_ip_addr.cc")

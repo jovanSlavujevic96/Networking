@@ -8,6 +8,7 @@ class CTcpServer : public IServer
 {
 public:
     explicit CTcpServer(const char* running_ip, uint16_t running_port) noexcept(false);
+    explicit CTcpServer(uint16_t running_port) noexcept;
     inline ~CTcpServer() = default;
 
     void initServer() noexcept(false) override;

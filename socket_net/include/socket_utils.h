@@ -1,7 +1,8 @@
 #pragma once
 
+#include <string>
 #include <cstdint>
-#include <string.h>
+#include <cstring>
 
 #if defined(__linux) || defined(__linux__)
 #include <sys/types.h>
@@ -37,6 +38,7 @@ typedef int32_t SOCKET;
 #include <iphlpapi.h>
 
 #pragma comment(lib, "Ws2_32.lib")
+#pragma comment(lib, "iphlpapi.lib")
 
 #define SHUT_RD 0
 #define SHUT_WR 1
@@ -44,7 +46,9 @@ typedef int32_t SOCKET;
 
 int close(SOCKET socket);
 
-#endif
+#endif	//defined(__linux) || defined(__linux__)
+
+std::string getOwnIpV4Address() noexcept(false);
 
 int error_code();
 #if defined(__linux) || defined(__linux__)

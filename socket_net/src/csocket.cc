@@ -13,17 +13,17 @@ CSocket::CSocket(SOCKET fd, std::unique_ptr<sockaddr_in> runningSockAddr, std::u
 
 CSocket::~CSocket()
 {
-    if (mSocketFd != INVALID_SOCKET)
-    {
-        CSocket::closeSocket();
-    }
+    CSocket::closeSocket();
 }
 
 void CSocket::closeSocket()
 {
-    ::shutdown(mSocketFd, SHUT_RDWR);
-    ::close(mSocketFd);
-    mSocketFd = INVALID_SOCKET;
+    if (mSocketFd != INVALID_SOCKET)
+    {
+        ::shutdown(mSocketFd, SHUT_RDWR);
+        ::close(mSocketFd);
+        mSocketFd = INVALID_SOCKET;
+    }
 }
 
 int32_t CSocket::operator<< (const IPackage* pkg) const noexcept(false)

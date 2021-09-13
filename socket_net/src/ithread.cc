@@ -18,7 +18,7 @@ void IThread::start()
 
 void IThread::join()
 {
-    if (mThread)
+    if (mThread && mThread->joinable())
     {
         mThread->join();
     }
