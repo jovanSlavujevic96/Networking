@@ -14,7 +14,6 @@ public:
     void detach();
 
 protected:
-    std::mutex mMutex;
     virtual void threadEntry() = 0;
 
 private:

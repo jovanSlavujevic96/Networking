@@ -11,8 +11,8 @@ public:
     virtual ~IPackage() = default;
 
     virtual const char* cData() const = 0;
-    virtual uint16_t getCurrentSize() const = 0;
-    virtual uint16_t getMaxSize() const = 0;
+    virtual size_t getCurrentSize() const = 0;
+    virtual size_t getMaxSize() const = 0;
 
 private:
     friend class CSocket;

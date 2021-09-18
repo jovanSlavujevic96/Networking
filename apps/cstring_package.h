@@ -9,7 +9,7 @@ class CStringPackage : public IPackage
 {
 public:
     CStringPackage(const char* cstr);
-    CStringPackage(uint16_t len);
+    CStringPackage(size_t len);
 
     CStringPackage() = default;
     ~CStringPackage() = default;
@@ -21,17 +21,17 @@ public:
     void clearPackage();
     void setMessage(const char* message);
     void setMessage(const std::string& message);
-    void setMaxSize(uint16_t len);
+    void setMaxSize(size_t len);
     void setCurrentSize();
-    void setCurrentSize(uint16_t len);
+    void setCurrentSize(size_t len);
 
     const char* cData() const override;
-    uint16_t getCurrentSize() const override;
-    uint16_t getMaxSize() const override;
+    size_t getCurrentSize() const override;
+    size_t getMaxSize() const override;
 
 private:
     char* data() override;
 
     std::string mMessage;
-    uint16_t mMaxLen = USHRT_MAX;    
+    size_t mMaxLen = USHRT_MAX;
 };

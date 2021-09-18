@@ -41,7 +41,7 @@ int32_t CSocket::operator<< (const IPackage* pkg) const noexcept(false)
     {
         throw CSocketException("CSocket::operator<< :: Package size is 0.");
     }
-    int32_t ret = ::sendto(mSocketFd, pkg->cData(), pkg->getCurrentSize(), 0, (sockaddr*)mTargetSockAddr.get(), CSocket::AddrLen);
+    int32_t ret = ::sendto(mSocketFd, pkg->cData(), (int)pkg->getCurrentSize(), 0, (sockaddr*)mTargetSockAddr.get(), CSocket::AddrLen);
     if(ret < 0)
     {
         int code = ::error_code();
@@ -61,7 +61,7 @@ int32_t CSocket::operator>> (IPackage* pkg) noexcept(false)
     {
         throw CSocketException("CSocket::operator>> :: Bad socket initialization.");
     }
-    int32_t ret = ::recvfrom(mSocketFd, pkg->data(), pkg->getMaxSize(), 0, (sockaddr*)mTargetSockAddr.get(), (socklen_t*)&CSocket::AddrLen);
+    int32_t ret = ::recvfrom(mSocketFd, pkg->data(), (int)pkg->getMaxSize(), 0, (sockaddr*)mTargetSockAddr.get(), (socklen_t*)&CSocket::AddrLen);
     if(ret < 0)
     {
         int code = ::error_code();

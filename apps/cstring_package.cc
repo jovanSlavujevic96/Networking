@@ -6,7 +6,7 @@ CStringPackage::CStringPackage(const char* cstr) :
 
 }
 
-CStringPackage::CStringPackage(uint16_t len) :
+CStringPackage::CStringPackage(size_t len) :
     mMaxLen{len}
 {
 
@@ -45,7 +45,7 @@ void CStringPackage::setMessage(const std::string& message)
     mMessage = message;
 }
 
-void CStringPackage::setMaxSize(uint16_t len)
+void CStringPackage::setMaxSize(size_t len)
 {
     mMaxLen = len;
 }
@@ -55,7 +55,7 @@ void CStringPackage::setCurrentSize()
     mMessage.resize(mMaxLen);
 }
    
-void CStringPackage::setCurrentSize(uint16_t len)
+void CStringPackage::setCurrentSize(size_t len)
 {
     mMessage.resize(len);
 }
@@ -70,12 +70,12 @@ const char* CStringPackage::cData() const
     return mMessage.c_str();
 }
 
-uint16_t CStringPackage::getCurrentSize() const
+size_t CStringPackage::getCurrentSize() const
 {
-    return (uint16_t)mMessage.size();
+    return mMessage.size();
 }
 
-uint16_t CStringPackage::getMaxSize() const
+size_t CStringPackage::getMaxSize() const
 {
     return mMaxLen;
 }
