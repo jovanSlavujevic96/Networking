@@ -88,7 +88,9 @@ size_t CTcpServer::acceptClient() noexcept(false)
 		int code = ::error_code();
 		throw CSocketException(code, "CTcpServer::acceptClient : accept failed for socket %llu -> %s", (size_t)this, ::error_message(code));
 	}
+	mClientSocketsMutex.lock();
 	mClientSockets.push_back(mAllocSocketFunction(target_fd, std::move(target_socket_addr)));
+	mClientSocketsMutex.unlock();
 	return mClientSockets.size()-1;
 }
 

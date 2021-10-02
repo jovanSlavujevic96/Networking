@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "csocket.h"
 #include "csocket_exception.h"
 

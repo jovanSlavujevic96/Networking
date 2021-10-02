@@ -13,7 +13,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(Threads REQUIRED)
 
-if (${CMAKE_SOURCE_DIR} MATCHES ${CMAKE_CURRENT_SOURCE_DIR})
+if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
     if (MSVC)
         # warning level 4 and all warnings as errors
         add_compile_options(/W4 /WX)
@@ -21,7 +21,7 @@ if (${CMAKE_SOURCE_DIR} MATCHES ${CMAKE_CURRENT_SOURCE_DIR})
         # lots of warnings and all warnings as errors
         add_compile_options(-Wall -Wextra -pedantic -Werror)
     endif()
-endif (${CMAKE_SOURCE_DIR} MATCHES ${CMAKE_CURRENT_SOURCE_DIR})
+endif (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/socket_net/include")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/socket_net")

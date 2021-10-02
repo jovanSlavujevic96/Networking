@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <mutex>
 
 #include "iserver.h"
 
@@ -25,6 +26,7 @@ public:
     template<class T>
     int32_t operator<< (const std::vector<T>& data) const noexcept(false) = delete;
 protected:
+    std::recursive_mutex mClientSocketsMutex;
     std::vector<std::unique_ptr<CSocket>> mClientSockets;
     std::function<std::unique_ptr<CSocket>(SOCKET, std::unique_ptr<sockaddr_in>)> mAllocSocketFunction = nullptr;
 };
